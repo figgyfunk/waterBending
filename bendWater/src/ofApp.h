@@ -1,17 +1,20 @@
 #pragma once
 
 #include "ofMain.h"
-class ofMolecule {
 
+class ofMolecule {
 public:
+	
 	ofMolecule();
-	ofMolecule(ofVec2f p);
+	ofMolecule(ofVec2f p, ofShader shader);
 	void update();
 	void draw();
-	ofVec2f pos;
-	ofVec2f vel;
-	ofVec2f frc;
+
+	ofVec2f vel; 
+	ofVec2f pos; 
+	ofVec2f frc; 
 	float drag;
+	ofShader shad;
 
 };
 class ofApp : public ofBaseApp{
@@ -32,9 +35,7 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
+
+		ofShader shader;
 		
-		vector <ofMolecule> m;
-
 };
-
-

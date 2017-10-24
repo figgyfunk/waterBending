@@ -1,27 +1,35 @@
 #include "ofApp.h"
-
+ofMolecule m;
+ofShader shader;
+ofShader shader2;
 
 ofMolecule::ofMolecule() {
 	pos = ofVec2f(0, 0);
-	vel = ofVec2f(1,1);
-	drag = ofRandom(.95, .998);
+	vel = ofVec2f(0, 0);
+	drag = ofRandom(.6, .7);
+	
+	
 }
-ofMolecule::ofMolecule(ofVec2f p) {
+ofMolecule::ofMolecule(ofVec2f p, ofShader shader) {
 	pos = p;
-	vel = ofVec2f(1, 1);
-	drag = ofRandom(.95, .998);
+	vel = ofVec2f(0, 0);
+	drag = ofRandom(.6, .7);
+	shad = shader;
+	
 }
 void ofMolecule::update() {
-	ofVec2f mouse(ofGetMouseX(), ofGetMouseY());
-	frc = mouse - pos;
 	
+	ofVec2f mouse(ofGetMouseX(), ofGetMouseY());
+	
+	frc = mouse - pos;
+
 	float dist = frc.length();
 	frc.normalize();
 	vel *= drag;
 	vel += frc * 0.6;
-	printf("Vel: %f,%f\n", vel.x, vel.y);
+	
 	pos += vel;
-	//printf("Point after: %f,%f\n", pos.x, pos.y);
+
 
 	//keep in screen
 	if (pos.x > ofGetWidth()) {
@@ -42,20 +50,39 @@ void ofMolecule::update() {
 	}
 }
 void ofMolecule::draw() {
-	ofDrawCircle(pos.x, pos.y, 5);
+	ofSetColor(ofColor().black);
+
+	shad.begin();
+	shad.setUniform1f("timeValX", ofGetElapsedTimef() * 0.15);
+	shad.setUniform1f("timeValY", -ofGetElapsedTimef() * 0.23);
+	ofPushMatrix();
+	ofTranslate(pos.x, pos.y);
+	ofDrawSphere(0, 0, 100);
+	ofPopMatrix();
+	shad.end();
+	
+
 }
 //--------------------------------------------------------------
 void ofApp::setup(){
 	
+	shader.load("shaders/shader");
+	 //m = ofMolecule(ofVec2f(0,0),shader);
+	 
+	 
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
+
+	//m.update();
 	
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+	//m.draw();
+
 	
 }
 
@@ -86,7 +113,7 @@ void ofApp::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
-	
+
 }
 
 //--------------------------------------------------------------
