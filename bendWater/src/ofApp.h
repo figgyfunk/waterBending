@@ -13,8 +13,15 @@ public:
 	ofVec2f vel; 
 	ofVec2f pos; 
 	ofVec2f frc; 
+	ofVec2f pos2;
+	ofVec2f pos3;
 	float drag;
 	ofShader shad;
+	float mouseX; 
+	float mouseY;
+	ofVec2f vel2; 
+	ofVec2f vel3;
+
 
 };
 class ofApp : public ofBaseApp{
@@ -37,5 +44,6 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
 		ofShader shader;
+		int count;
 		
 };
