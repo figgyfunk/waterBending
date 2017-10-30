@@ -1,14 +1,16 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxOpenCv.h"
+#include "ofxCvHaarFinder.h"
 
 class ofMolecule {
 public:
 	
 	ofMolecule();
 	ofMolecule(ofVec2f p, ofShader shader);
-	void update();
-	void draw();
+	void update(ofVec2f blobCenter);
+	void draw(ofVec2f blobCenter);
 
 	ofVec2f vel; 
 	ofVec2f pos; 
@@ -45,5 +47,17 @@ class ofApp : public ofBaseApp{
 
 		ofShader shader;
 		int count;
+
+		int camWidth, camHeight;
+
+		ofVideoGrabber vidGrabber;
+
+		ofxCvHaarFinder finder;
+
+		ofxCvColorImage rgb, hsb;
+		ofxCvGrayscaleImage hue, sat, bri, filter1, filter2, finalImage;
+
+		ofxCvContourFinder   contours;
+		int findHue, findSat;
 		
 };
