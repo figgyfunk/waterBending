@@ -186,18 +186,14 @@ void ofApp::draw(){
 		//filter2.draw(camWidth + 320, 240, 320, 240);
 		//finalImage.draw(0, camHeight, 320, 240);
 	}
-	contours.draw(0, 0);
 
-	ofNoFill();
+
+
 	//printf("size of blobs: %d", finder.blobs.size());
 	if (finder.blobs.size() > 0) {
 		m.draw(finder.blobs[0].centroid);
 	}
-	for (int i = 0; i < finder.blobs.size(); ++i) {
-		ofDrawRectangle(finder.blobs[i].boundingRect);
 
-	}
-	ofFill();
 }
 
 //--------------------------------------------------------------
