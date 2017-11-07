@@ -3,6 +3,8 @@ ofMolecule m;
 ofMolecule m2;
 ofShader shader;
 bool showStuff;
+ofVec2f currentPixel;
+ofVec2f previousPixel;
 
 
 
@@ -77,7 +79,7 @@ void ofApp::setup(){
 	ofSetBackgroundAuto(false);
 	ofBackground(ofColor().white);
 	ofEnableAlphaBlending();
-	//ofSetFrameRate(150);
+	ofSetFrameRate(150);
 	shader.load("shaders/shader");
 
 	m = ofMolecule(ofVec2f(0,0),shader);
@@ -89,17 +91,8 @@ void ofApp::setup(){
 	vidGrabber.setDeviceID(0);
 	vidGrabber.initGrabber(camWidth, camHeight);
 
-	finder.setup("haarcascade_frontalface_default.xml");
-
-	rgb.allocate(camWidth, camHeight);
-	hsb.allocate(camWidth, camHeight);
-	hue.allocate(camWidth, camHeight);
-	sat.allocate(camWidth, camHeight);
-	bri.allocate(camWidth, camHeight);
-	filter1.allocate(camWidth, camHeight);
-	filter2.allocate(camWidth, camHeight);
-	finalImage.allocate(camWidth, camHeight);
-	 
+	currentPixel = ofVec2f(0, 0);
+	previousPixel = currentPixel;
 	 
 }
 
@@ -112,41 +105,26 @@ void ofApp::update(){
 
 	if (vidGrabber.isFrameNew())
 	{
-		rgb.setFromPixels(vidGrabber.getPixels());
-		hsb = rgb;
-		hsb.convertRgbToHsv();
-		hsb.convertToGrayscalePlanarImages(hue, sat, bri);
-
-		int hueRange = 10;
-		int satRange = 20;
-		for (int i = 0; i < camWidth * camHeight; ++i) {
-			filter1.getPixels()[i] = ofInRange(hue.getPixels()[i],
-				findHue - hueRange,
-				findHue + hueRange) ? 255 : 0;
-
-			filter2.getPixels()[i] = ofInRange(sat.getPixels()[i],
-				findSat - satRange,
-				findSat + satRange) ? 255 : 0;
+		float max = 0; 
+		ofPixels pixels = vidGrabber.getPixels();
+		for (int i = 0; i < camWidth; i++)
+		{
+			for (int j = 0; j < camHeight; j++)
+			{
+				float bright = pixels.getColor(i, j).getBrightness();
+				if (bright > max)
+				{
+					currentPixel = ofVec2f(i, j);
+					max = bright;
+				}
+			}
 		}
-		filter1.flagImageChanged();
-		filter2.flagImageChanged();
 
-		cvAnd(filter1.getCvImage(),
-			filter2.getCvImage(),
-			finalImage.getCvImage());
-		finalImage.flagImageChanged();
 
-		contours.findContours(finalImage,
-			50,
-			(camWidth*camHeight) / 3,
-			3,
-			false);
-
-		finder.findHaarObjects(vidGrabber.getPixels());
+		
 	}
-	if (finder.blobs.size() > 0) {
-		m.update(finder.blobs[0].centroid);
-	}
+	m.update(currentPixel);
+	
 
 	
 
@@ -155,45 +133,17 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-	/*if (count % 2 == 0) {
+	if (count % 2 == 0) {
 		ofSetColor(255, 255, 255, 3);
 		ofRect(0, 0, ofGetWidth(), ofGetHeight());
 	}
 	
-	//m.draw();
-	//m2.draw();
-	ofSetColor(ofColor().black);
-	shader.begin();
-	shader.setUniform1f("timeValX", ofGetElapsedTimef() * 0.15);
-	shader.setUniform1f("timeValY", -ofGetElapsedTimef() * 0.23);
-	shader.setUniform1f("drag", ofRandom(.2, .98));
-	shader.setUniform2f("mouse", ofVec2f(ofGetScreenWidth()/2, ofGetMouseY()));
-	shader.setUniform3f("center", ofVec3f(ofGetWidth() / 2, ofGetHeight() / 2, 1));
-	ofDrawRectangle(ofGetScreenWidth()/2, 250, 1, ofGetScreenWidth(), ofGetScreenHeight() / 5);
-	shader.end();*/
-
-	if (showStuff) {
-		ofSetColor(ofColor::white);
-		vidGrabber.draw(0, 0, camWidth, camHeight);
-
-		//hsb.draw(0, camHeight, 320, 240);
-
-		//hue.draw(camWidth, 0, 320, 240);
-		//sat.draw(camWidth, 240, 320, 240);
-		//bri.draw(camWidth, 480, 320, 240);
-
-		//filter1.draw(camWidth + 320, 0, 320, 240);
-		//filter2.draw(camWidth + 320, 240, 320, 240);
-		//finalImage.draw(0, camHeight, 320, 240);
-	}
-
-
-
-	//printf("size of blobs: %d", finder.blobs.size());
-	if (finder.blobs.size() > 0) {
-		m.draw(finder.blobs[0].centroid);
-	}
-
+	m.draw(currentPixel);
+	ofSetColor(ofColor().white);
+	ofCircle(previousPixel.x, previousPixel.y, 5);
+	ofSetColor(ofColor().red);
+	ofCircle(currentPixel.x, currentPixel.y, 5);
+	previousPixel = currentPixel;
 }
 
 //--------------------------------------------------------------
@@ -219,11 +169,7 @@ void ofApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){
-	int mx = x % camWidth;
-	int my = y % camHeight;
-
-	findHue = hue.getPixels()[my*camWidth + mx];
-	findSat = sat.getPixels()[my*camWidth + mx];
+	
 }
 
 //--------------------------------------------------------------

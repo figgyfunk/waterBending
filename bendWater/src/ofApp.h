@@ -52,12 +52,5 @@ class ofApp : public ofBaseApp{
 
 		ofVideoGrabber vidGrabber;
 
-		ofxCvHaarFinder finder;
-
-		ofxCvColorImage rgb, hsb;
-		ofxCvGrayscaleImage hue, sat, bri, filter1, filter2, finalImage;
-
-		ofxCvContourFinder   contours;
-		int findHue, findSat;
 		
 };
